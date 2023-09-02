@@ -65,6 +65,17 @@ public class RestControllerAdviceHandler {
 		return new ResponseEntity<ErrorResponse>(errorResponse, 
 				HttpStatusCode.valueOf(ex.getStatus()));
 	}
+	@ExceptionHandler(AppException.class)
+	public ResponseEntity<?> handleException(AppException ex, HttpServletRequest request) {
+
+		ErrorResponse errorResponse = new ErrorResponse(ex.getStatus(),
+				ex.getExceptionType() == AppExceptionType.INTERNAL_SERVER
+						? ex.getExceptionType().getLabel() : ex.getMessage(),
+				LocalDateTime.now(),
+				request.getServletPath());
+		return new ResponseEntity<ErrorResponse>(errorResponse,
+				HttpStatusCode.valueOf(ex.getStatus()));
+	}
 		
 	record ErrorResponse(int status, String error, LocalDateTime timestamp, String path) {}
 }

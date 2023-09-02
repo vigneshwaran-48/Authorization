@@ -205,6 +205,7 @@ public class Client {
 		String authorizationGrantTypes = client.getAuthorizationGrantTypes();
 		
 		CommonClientDetails clientDetails = new CommonClientDetails();
+		clientDetails.setId(client.getId());
 		clientDetails.setAuthorizationGrantTypes(authorizationGrantTypes);
 		clientDetails.setClientAuthenticationMethods(clientAuthMethods);
 		clientDetails.setClientId(client.getClientId());

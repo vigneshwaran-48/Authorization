@@ -15,8 +15,14 @@ public interface ClientService {
 	boolean isClientExists(String clientId);
 	
 	void removeClient(String clientId);
-	
-	String addClient(RegisteredClient registeredClient) throws Exception;
+
+	/**
+	 * This method will return the client id not the table's primary key id
+	 * @param registeredClient
+	 * @return
+	 * @throws Exception
+	 */
+	String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception;
 	
 	List<CommonClientDetails> getAllClients(String userId);
 	

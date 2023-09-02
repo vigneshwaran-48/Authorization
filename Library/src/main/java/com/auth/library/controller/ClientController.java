@@ -37,51 +37,40 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/user/{userId}/client")
 public class ClientController {
-
-	@Autowired
-	private TokenSettings tokenSettings;
-	@Autowired
-	private ClientSettings clientSettings;
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
 	private ClientService clientService;
 	
-	private ClientAuthenticationMethod getClientAuthForString(String clientAuthStr) {
-		switch (clientAuthStr) {
-			case "client_secret_basic":
-				return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
-			case "client_secret_post": 
-				return ClientAuthenticationMethod.CLIENT_SECRET_POST;
-		default:
-			return ClientAuthenticationMethod.CLIENT_SECRET_JWT;
-		}
+	private ClientAuthenticationMethod getClientAuth() {
+		return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 	}
 	
 	@PostMapping
-	public ResponseEntity<RegisteredClient> addClient(@RequestBody ClientCreationPayload payload) throws Exception {
-		List<AuthorizationGrantType> authGrantTypes = Arrays.asList(payload.getGrantTypes().split(","))
-							.stream()
-							.map(AuthServerUtils::resolveAuthorizationGrantType)
-							.collect(Collectors.toList());
+	public ResponseEntity<?> addClient(
+			@RequestBody ClientCreationPayload payload,
+			Principal principal) throws Exception {
+
+		if(principal == null || principal.getName() == null) {
+			throw new UnAuthenticatedException("User details not found");
+		}
 		List<String> redirectUris = Arrays.asList(payload.getRedirectUris().split(","));
 		List<String> scopes = Arrays.asList(payload.getScopes().split(","));
 				
-		RegisteredClient client = 
+		RegisteredClient.Builder client =
 				RegisteredClient.withId(UUID.randomUUID().toString())
-					.clientId(payload.getClientId())
 					.clientSecret(passwordEncoder.encode(payload.getClientSecret()))
-					.clientAuthenticationMethod(getClientAuthForString(payload.getClientAuthMethods()))
+					.clientAuthenticationMethod(getClientAuth())
 					.clientName(payload.getClientName())
 					.scopes(scope -> scopes.forEach(scope::add))
 					.redirectUris(redirect -> redirectUris.forEach(redirect::add))
-					.authorizationGrantTypes(grantType -> authGrantTypes.forEach(grantType::add))
-					.tokenSettings(tokenSettings)
-					.clientSettings(clientSettings)
-					.build();
-		clientService.addClient(client);
+					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
+
+		String clientId = clientService.addClient(principal.getName(), client);
+		payload.setClientId(clientId);
+		payload.setClientSecret("******");
 		
-		return ResponseEntity.of(Optional.of(client));
+		return ResponseEntity.ok(payload);
 	}
 	
 	@GetMapping

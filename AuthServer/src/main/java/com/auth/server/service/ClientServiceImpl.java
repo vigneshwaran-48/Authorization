@@ -41,8 +41,8 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public String addClient(RegisteredClient registeredClient) throws Exception {
-		Client addedClient = clientRepository.save(Client.toClient(registeredClient));
+	public String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception {
+		Client addedClient = clientRepository.save(Client.toClient(registeredClient.build()));
 		if(addedClient != null) {
 			return addedClient.getId();
 		}
