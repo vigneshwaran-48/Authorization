@@ -2,19 +2,19 @@ package com.auth.library.dto;
 
 public class ClientCreationPayload {
 
-	private String redirectUris, scopes, clientName, grantTypes, clientAuthMethods, clientId,
-				   clientSecret;
+	private String redirectUris, scopes, clientName, grantTypes, clientId,
+				   clientSecret, userId;
 
 	public ClientCreationPayload(String redirectUris, String scopes, String clientName, String grantTypes,
-			String clientAuthMethods, String clientId, String clientSecret) {
+			String clientAuthMethods, String clientId, String clientSecret, String userId) {
 		super();
 		this.redirectUris = redirectUris;
 		this.scopes = scopes;
 		this.clientName = clientName;
 		this.grantTypes = grantTypes;
-		this.clientAuthMethods = clientAuthMethods;
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
+		this.userId = userId;
 	}
 	
 	public ClientCreationPayload() {}
@@ -51,14 +51,6 @@ public class ClientCreationPayload {
 		this.grantTypes = grantTypes;
 	}
 
-	public String getClientAuthMethods() {
-		return clientAuthMethods;
-	}
-
-	public void setClientAuthMethods(String clientAuthMethods) {
-		this.clientAuthMethods = clientAuthMethods;
-	}
-
 	public String getClientId() {
 		return clientId;
 	}
@@ -73,5 +65,13 @@ public class ClientCreationPayload {
 
 	public void setClientSecret(String clientSecret) {
 		this.clientSecret = clientSecret;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

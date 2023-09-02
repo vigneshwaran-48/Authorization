@@ -21,7 +21,7 @@ spring:
           auth-server-client:
             client-id: proapp_auth_server_client
             client-secret: proapp_auth@123
-            scope: "openid,APP.all"            
+            scope: "openid,APP.all"
         provider:
           auth-server-client:
             issuer-uri: "http://localhost:9090"
