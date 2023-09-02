@@ -1,0 +1,43 @@
+server:
+  port: 9090
+
+authserver:
+  baseurl: "http://localhost:9090"     
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: "983264734852-t6dvu7d5l173tfd65fgb9gk1441s5e8i.apps.googleusercontent.com"
+            clientSecret: "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"
+            scope: "openid"
+          github:
+            clientId: "cb087a341bbfb05ee38e"
+            clientSecret: "97d6c862bb26c9a40cce04668cb3ea196062aae2"
+            scope:
+              - user:email
+              - read:user
+        provider:
+          google:
+            issuerUri: "https://accounts.google.com"
+
+  jpa:  
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: "jdbc:mysql://localhost:3306/auth_server_2"
+    username: "root"
+    password: ""
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+logging:
+  level:
+    org:
+      springframework:
+        security: trace
+
+        
+               
