@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ScopeRepository extends JpaRepository<Scope, Long> {
 
     Optional<Scope> findByScopeName(String scopeName);
+    Optional<Scope> findByClientClientIdAndScopeName(String clientId, String scopeName);
 }
