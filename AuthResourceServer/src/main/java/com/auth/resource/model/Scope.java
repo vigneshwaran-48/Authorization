@@ -14,7 +14,7 @@ public class Scope {
 	@JoinColumn(name = "client_id", nullable = false)
 	private Client client;
 	
-	@Column(name = "scope_name", nullable = false)
+	@Column(name = "scope_name", nullable = false, unique = true)
 	private String scopeName;
 
 	public Long getScopeId() {

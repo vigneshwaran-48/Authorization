@@ -1,10 +1,17 @@
 package com.auth.resource.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.auth.library.exception.UserNotFoundException;
+import com.auth.library.model.CommonUserDetails;
+import com.auth.library.service.AppUserService;
+import com.auth.resource.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,8 +26,13 @@ import com.google.common.base.Preconditions;
 public class ClientServiceImpl implements ClientService {
 
 	@Autowired
+	private TokenSettings tokenSettings;
+	@Autowired
+	private ClientSettings clientSettings;
+	@Autowired
 	private ClientRepository clientRepository;
-	
+	@Autowired
+	private AppUserService appUserService;
 	@Override
 	public String addClient(CommonClientDetails client) throws Exception {
 		Assert.notNull(client, "Client can't be null");
@@ -43,11 +55,30 @@ public class ClientServiceImpl implements ClientService {
 		clientRepository.deleteByClientId(clientId);
 	}
 
+	/**
+	 * This method will return the client id not the table's primary key id
+	 * @param registeredClient
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
-	public String addClient(RegisteredClient registeredClient) throws Exception {
-		Client addedClient = clientRepository.save(Client.toClient(registeredClient));
+	public String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception {
+
+		CommonUserDetails appUser = appUserService.findByUserId(userId);
+		if(appUser == null) {
+			throw new UserNotFoundException("User not found for " + userId);
+		}
+		String clientId = UUID.randomUUID().toString();
+		registeredClient
+				.clientId("proapp-" + clientId.toString())
+				.tokenSettings(tokenSettings)
+				.clientSettings(clientSettings);
+
+		Client client = Client.toClient(registeredClient.build());
+		client.setUser(AppUser.toAppUser(appUser));
+		Client addedClient = clientRepository.save(client);
 		if(addedClient != null) {
-			return addedClient.getId();
+			return addedClient.getClientId();
 		}
 		throw new Exception("Can't create the client");
 	}

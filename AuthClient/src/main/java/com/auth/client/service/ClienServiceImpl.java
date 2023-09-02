@@ -1,11 +1,14 @@
 package com.auth.client.service;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.auth.library.dto.ClientCreationPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.auth.library.dto.ClientControllerResponse;
@@ -43,9 +46,33 @@ public class ClienServiceImpl implements ClientService {
 	}
 
 	@Override
-	public String addClient(RegisteredClient registeredClient) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception {
+		registeredClient.clientId("dummy-id");
+		RegisteredClient client = registeredClient.build();
+
+		ClientCreationPayload payload = new ClientCreationPayload();
+		payload.setClientSecret(client.getClientSecret());
+		payload.setClientName(client.getClientName());
+
+		StringBuffer scopes = new StringBuffer();
+		client.getScopes().forEach(scope -> scopes.append(scope).append(","));
+		scopes.deleteCharAt(scopes.length() - 1);
+		payload.setScopes(scopes.toString());
+
+		payload.setRedirectUris(StringUtils
+				.arrayToCommaDelimitedString(
+						client.getRedirectUris().toArray(
+								new String[client.getRedirectUris().size()])
+				)
+		);
+		payload.setUserId(userId);
+		Mono<ClientCreationPayload> response = webClient.post()
+				.uri(resourceServerDomain + "/api/user/" + userId + "/client")
+				.body(Mono.just(payload), ClientCreationPayload.class)
+				.retrieve()
+				.bodyToMono(ClientCreationPayload.class);
+
+		return response.block().getClientId();
 	}
 
 	@Override
