@@ -77,7 +77,7 @@ public class WebSecurityConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
-		config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:9090"));
+		config.setAllowedOrigins(Arrays.asList("http://127.0.0.1:3000", "http://localhost:9090"));
 		config.setAllowedHeaders(Arrays.asList(
 					HttpHeaders.AUTHORIZATION,
 					HttpHeaders.CONTENT_TYPE,
