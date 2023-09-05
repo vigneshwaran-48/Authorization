@@ -69,8 +69,17 @@ public class ClientController {
 		String clientId = clientService.addClient(principal.getName(), client);
 		payload.setClientId(clientId);
 		payload.setClientSecret("******");
+
+		CommonClientDetails clientDetails = clientService.getClientById(principal.getName(), clientId);
+
+		SingleClientControllerResponse response = new SingleClientControllerResponse();
+		response.setClient(clientDetails);
+		response.setMessage("success");
+		response.setStatus(HttpStatus.CREATED.value());
+		response.setPath("/api/user/" + principal.getName() + "/client");
+		response.setTimestamp(LocalDateTime.now());
 		
-		return ResponseEntity.ok(payload);
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping

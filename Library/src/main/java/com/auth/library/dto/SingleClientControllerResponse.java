@@ -52,4 +52,5 @@ public class SingleClientControllerResponse {
 		this.client = client;
 		this.path = path;
 	}
+	public SingleClientControllerResponse() {}
 }
