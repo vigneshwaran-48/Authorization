@@ -81,7 +81,7 @@ public class ClienServiceImpl implements ClientService {
 												 .uri(resourceServerDomain + "/api/user/" + userId + "/client")
 												 .retrieve()
 												 .bodyToMono(ClientControllerResponse.class);
-		
+		System.out.println("Got response from resource server ...");
 		return response.block().getData();
 	}
 

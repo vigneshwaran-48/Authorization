@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.auth.library.dto.ClientResponseWithId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,17 +68,15 @@ public class ClientController {
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 
 		String clientId = clientService.addClient(principal.getName(), client);
-		payload.setClientId(clientId);
-		payload.setClientSecret("******");
 
-		CommonClientDetails clientDetails = clientService.getClientById(principal.getName(), clientId);
-
-		SingleClientControllerResponse response = new SingleClientControllerResponse();
-		response.setClient(clientDetails);
+		ClientResponseWithId response = new ClientResponseWithId();
+		response.setClientId(clientId);
 		response.setMessage("success");
 		response.setStatus(HttpStatus.CREATED.value());
 		response.setPath("/api/user/" + principal.getName() + "/client");
 		response.setTimestamp(LocalDateTime.now());
+
+		System.out.println(response);
 		
 		return ResponseEntity.ok(response);
 	}
