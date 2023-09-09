@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.auth.library.dto.*;
+import com.auth.library.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,19 +122,21 @@ public class ClientController {
 
 		return ResponseEntity.ok(response);
 	}
-	
-//	@GetMapping("{clientId}")
-//	public ResponseEntity<RegisteredClient> getClientById(@PathVariable String clientId) {
-//		RegisteredClient client = registeredClientRepository.findByClientId(clientId);
-//		return ResponseEntity.of(Optional.of(client));
-//	}
-	
-//	@GetMapping("{imageName}")
-//	public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
-//		System.out.println("Searchin for image");
-//		UserProfileImage userImage = userImageRepository.findByImageName(imageName).orElseThrow();
-//		return ResponseEntity.ok()
-//							 .contentType(MediaType.valueOf(userImage.getType()))
-//							 .body(userImage.getImageBytes());
-//	}
+
+	@PutMapping("{clientId}")
+	public ResponseEntity<?> updateClient(@PathVariable("userId") String userId,
+										  @PathVariable("clientId") String clientId,
+										  @RequestBody CommonClientDetails clientDetails,
+										  Principal principal) throws AppException {
+		clientDetails.setClientId(clientId);
+		clientService.updateClient(userId, clientDetails);
+
+		ClientResponseWithEmptyData response = new ClientResponseWithEmptyData();
+		response.setMessage("Updated client successfully");
+		response.setTimestamp(LocalDateTime.now());
+		response.setPath("/api/user/" + userId + "/client/" + clientId);
+		response.setStatus(HttpStatus.OK.value());
+
+		return ResponseEntity.ok(response);
+	}
 }

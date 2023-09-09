@@ -12,7 +12,7 @@ import com.auth.resource.model.Client;
 public interface ClientRepository extends JpaRepository<Client, String> {
 	
 	Optional<Client> findByClientId(String clientId);
-
+	Optional<Client> findByClientIdAndUserId(String clientId, String userId);
 	@Transactional
 	void deleteByClientId(String clientId);
 	

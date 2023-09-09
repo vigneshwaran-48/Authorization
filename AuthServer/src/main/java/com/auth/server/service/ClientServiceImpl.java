@@ -2,6 +2,7 @@ package com.auth.server.service;
 
 import java.util.List;
 
+import com.auth.library.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.stereotype.Service;
@@ -59,5 +60,10 @@ public class ClientServiceImpl implements ClientService {
 	public CommonClientDetails getClientById(String userId, String clientId) {
 		// TODO Should implement this
 		return null;
+	}
+
+	@Override
+	public void updateClient(String userId, CommonClientDetails commonClientDetails) throws AppException {
+		// TODO Should implement this
 	}
 }

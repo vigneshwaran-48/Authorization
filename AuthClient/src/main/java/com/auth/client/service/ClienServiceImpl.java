@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.auth.library.dto.ClientCreationPayload;
 import com.auth.library.dto.ClientResponseWithEmptyData;
+import com.auth.library.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -51,7 +52,8 @@ public class ClienServiceImpl implements ClientService {
 	}
 
 	@Override
-	public String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception {
+	public String addClient(String userId, RegisteredClient.Builder registeredClient)
+			throws Exception {
 		registeredClient.clientId("dummy-id");
 		RegisteredClient client = registeredClient.build();
 
@@ -83,10 +85,18 @@ public class ClienServiceImpl implements ClientService {
 	@Override
 	public List<CommonClientDetails> getAllClients(String userId) {
 		Mono<ClientControllerResponse> response =  webClient.get()
-												 .uri(resourceServerDomain + "/api/user/" + userId + "/client")
+												 .uri(resourceServerDomain
+														 + "/api/user/" + userId
+														 + "/client")
 												 .retrieve()
 												 .bodyToMono(ClientControllerResponse.class);
 		System.out.println("Got response from resource server ...");
+		//Will be removed, This is just for seeing the loading screen.
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		return response.block().getData();
 	}
 
@@ -94,11 +104,24 @@ public class ClienServiceImpl implements ClientService {
 	public CommonClientDetails getClientById(String userId, String clientId) {
 		Mono<SingleClientControllerResponse> response =  webClient.get()
 				 // TODO need to change this hardcoded value 
-				 .uri(resourceServerDomain + "/api/user/" + userId + "/client/" + clientId)
+				 .uri(resourceServerDomain + "/api/user/"
+						 + userId + "/client/" + clientId)
 				 .retrieve()
 				 .bodyToMono(SingleClientControllerResponse.class);
 
 		return response.block().getClient();
+	}
+
+	@Override
+	public void updateClient(String userId, CommonClientDetails commonClientDetails)
+			throws AppException {
+		Mono<ClientResponseWithEmptyData> response = webClient.put()
+				.uri(resourceServerDomain + "/api/user/"
+						+ userId + "/client/" + commonClientDetails.getClientId())
+				.body(Mono.just(commonClientDetails), CommonClientDetails.class)
+				.retrieve()
+				.bodyToMono(ClientResponseWithEmptyData.class);
+		System.out.println("Response from resource server => " + response.block());
 	}
 
 }
