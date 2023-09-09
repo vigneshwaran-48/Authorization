@@ -2,10 +2,12 @@ package com.auth.resource.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.auth.library.exception.AppException;
+import com.auth.library.exception.AppExceptionType;
 import com.auth.library.exception.ClientExistsException;
 import com.auth.library.exception.UserNotFoundException;
 import com.auth.library.model.CommonScopeDetails;
@@ -63,8 +65,9 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public void removeClient(String clientId) {
+	public void removeClient(String userId, String clientId) {
 		Assert.notNull(clientId, "Client id can't be null");
+		scopeService.deleteAllScopesOfClient(clientId);
 		clientRepository.deleteByClientId(clientId);
 	}
 
@@ -75,7 +78,8 @@ public class ClientServiceImpl implements ClientService {
 	 * @throws Exception
 	 */
 	@Override
-	public String addClient(String userId, RegisteredClient.Builder registeredClient) throws Exception {
+	public String addClient(String userId, RegisteredClient.Builder registeredClient)
+			throws Exception {
 
 		CommonUserDetails appUser = appUserService.findByUserId(userId);
 		if(appUser == null) {
@@ -141,10 +145,81 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public CommonClientDetails getClientById(String userId, String clientId) {
 		
-		//TODO Need to get the client details with userId in condition
-		Client client = clientRepository.findByClientId(clientId)
+		Client client = clientRepository.findByClientIdAndUserId(clientId, userId)
 					.orElseThrow(() -> new IllegalArgumentException("Client id not exists"));
 		
 		return Client.toCommonClientDetails(client);
+	}
+
+	@Override
+	public void updateClient(String userId, CommonClientDetails clientDetails)
+			throws AppException {
+		Preconditions.checkArgument(clientDetails != null,
+									"Client data can't be empty");
+		Preconditions.checkArgument(userId != null && !userId.isBlank(),
+				"User id can't be empty");
+
+		Optional<Client> prevClient =
+					clientRepository
+							.findByClientIdAndUserId(
+									clientDetails.getClientId(),
+									userId);
+		if(prevClient.isEmpty()) {
+			throw new AppException("Client not exists", 400, AppExceptionType.BAD_REQUEST);
+		}
+		if(clientDetails.getClientName() != null) {
+			Client temp = clientRepository
+					.findByUserIdAndClientName(userId, clientDetails.getClientName()).get();
+			if(temp != null && !temp.getClientId().equals(clientDetails.getClientId())) {
+				throw new ClientExistsException("Client already existing with this name");
+			}
+		}
+
+		clientDetails.setUserDetails(AppUser.toCommonUserDetails(prevClient.get().getUser()));
+		Client newClient = Client.toClient(clientDetails);
+		checkAndUpdateClient(prevClient.get(), newClient);
+
+		//TODO Need to validate the client details before updating
+		clientRepository.save(newClient);
+	}
+
+	private void checkAndUpdateClient(Client prevClient, Client newClient) {
+		if(newClient.getId() == null) {
+			newClient.setId(prevClient.getId());
+		}
+		if(newClient.getClientSecret() == null) {
+			newClient.setClientSecret(prevClient.getClientSecret());
+		}
+		if(newClient.getClientIdIssuedAt() == null) {
+			newClient.setClientIdIssuedAt(prevClient.getClientIdIssuedAt());
+		}
+		if(newClient.getClientName() == null) {
+			newClient.setClientName(prevClient.getClientName());
+		}
+		if(newClient.getClientSettings() == null) {
+			newClient.setClientSettings(prevClient.getClientSettings());
+		}
+		if(newClient.getAuthorizationGrantTypes() == null) {
+			newClient.setAuthorizationGrantTypes(prevClient.getAuthorizationGrantTypes());
+		}
+		if(newClient.getClientAuthenticationMethods() == null) {
+			newClient.setClientAuthenticationMethods(
+					prevClient.getClientAuthenticationMethods());
+		}
+		if(newClient.getClientSecretExpiresAt() == null) {
+			newClient.setClientSecretExpiresAt(prevClient.getClientSecretExpiresAt());
+		}
+		if(newClient.getRedirectUris() == null) {
+			newClient.setRedirectUris(prevClient.getRedirectUris());
+		}
+		if(newClient.getScopes() == null) {
+			newClient.setScopes(prevClient.getScopes());
+		}
+		if(newClient.getTokenSettings() == null) {
+			newClient.setTokenSettings(prevClient.getTokenSettings());
+		}
+		if(newClient.getUser() == null) {
+			newClient.setUser(prevClient.getUser());
+		}
 	}
 }

@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.auth.library.dto.*;
+import com.auth.library.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +19,8 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.auth.library.dto.ClientControllerResponse;
-import com.auth.library.dto.ClientCreationPayload;
-import com.auth.library.dto.SingleClientControllerResponse;
 import com.auth.library.exception.UnAuthenticatedException;
 import com.auth.library.model.CommonClientDetails;
 import com.auth.library.service.ClientService;
@@ -67,10 +61,17 @@ public class ClientController {
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 
 		String clientId = clientService.addClient(principal.getName(), client);
-		payload.setClientId(clientId);
-		payload.setClientSecret("******");
+
+		ClientResponseWithId response = new ClientResponseWithId();
+		response.setClientId(clientId);
+		response.setMessage("success");
+		response.setStatus(HttpStatus.CREATED.value());
+		response.setPath("/api/user/" + principal.getName() + "/client");
+		response.setTimestamp(LocalDateTime.now());
+
+		System.out.println(response);
 		
-		return ResponseEntity.ok(payload);
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping
@@ -103,19 +104,39 @@ public class ClientController {
 	
 	return ResponseEntity.ok(clientResponse);
 	}
-	
-//	@GetMapping("{clientId}")
-//	public ResponseEntity<RegisteredClient> getClientById(@PathVariable String clientId) {
-//		RegisteredClient client = registeredClientRepository.findByClientId(clientId);
-//		return ResponseEntity.of(Optional.of(client));
-//	}
-	
-//	@GetMapping("{imageName}")
-//	public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
-//		System.out.println("Searchin for image");
-//		UserProfileImage userImage = userImageRepository.findByImageName(imageName).orElseThrow();
-//		return ResponseEntity.ok()
-//							 .contentType(MediaType.valueOf(userImage.getType()))
-//							 .body(userImage.getImageBytes());
-//	}
+
+	@DeleteMapping("{clientId}")
+	public ResponseEntity<?> deleteClient(@PathVariable("userId") String userId,
+										  @PathVariable("clientId") String clientId,
+										  Principal principal) throws UnAuthenticatedException {
+		if(principal == null || principal.getName() == null || principal.getName().isEmpty()) {
+			throw new UnAuthenticatedException("Not Authenticated");
+		}
+		clientService.removeClient(userId, clientId);
+
+		ClientResponseWithEmptyData response = new ClientResponseWithEmptyData();
+		response.setMessage("Successfully deleted client");
+		response.setPath("/api/user/" + userId + "/client/" + clientId);
+		response.setStatus(HttpStatus.OK.value());
+		response.setTimestamp(LocalDateTime.now());
+
+		return ResponseEntity.ok(response);
+	}
+
+	@PutMapping("{clientId}")
+	public ResponseEntity<?> updateClient(@PathVariable("userId") String userId,
+										  @PathVariable("clientId") String clientId,
+										  @RequestBody CommonClientDetails clientDetails,
+										  Principal principal) throws AppException {
+		clientDetails.setClientId(clientId);
+		clientService.updateClient(userId, clientDetails);
+
+		ClientResponseWithEmptyData response = new ClientResponseWithEmptyData();
+		response.setMessage("Updated client successfully");
+		response.setTimestamp(LocalDateTime.now());
+		response.setPath("/api/user/" + userId + "/client/" + clientId);
+		response.setStatus(HttpStatus.OK.value());
+
+		return ResponseEntity.ok(response);
+	}
 }
