@@ -35,7 +35,7 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public void removeClient(String clientId) {
+	public void removeClient(String userId, String clientId) {
 		Assert.notNull(clientId, "Client id can't be null");
 		clientRepository.deleteByClientId(clientId);
 	}

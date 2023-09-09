@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.auth.library.dto.ClientCreationPayload;
+import com.auth.library.dto.ClientResponseWithEmptyData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -40,9 +41,13 @@ public class ClienServiceImpl implements ClientService {
 	}
 
 	@Override
-	public void removeClient(String clientId) {
-		// TODO Auto-generated method stub
-		
+	public void removeClient(String userId, String clientId) {
+		Mono<ClientResponseWithEmptyData> response = webClient.delete()
+				.uri(resourceServerDomain + "/api/user/"
+						+ userId + "/client/" + clientId)
+				.retrieve()
+				.bodyToMono(ClientResponseWithEmptyData.class);
+		System.out.println("Response from resource server => " + response.block());
 	}
 
 	@Override

@@ -14,7 +14,7 @@ public interface ClientService {
 	
 	boolean isClientExists(String clientId);
 	
-	void removeClient(String clientId);
+	void removeClient(String userId, String clientId);
 
 	/**
 	 * This method will return the client id not the table's primary key id

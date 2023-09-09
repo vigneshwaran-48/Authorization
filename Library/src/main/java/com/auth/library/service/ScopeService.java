@@ -15,6 +15,7 @@ public interface ScopeService {
     Long createScope(CommonClientDetails client, CommonScopeDetails scopeDetails) throws AppException;
     Long deleteScope(String clientId, Long scopeId);
     boolean isScopePresent(String clientId, Long scopeId);
+    List<Long> deleteAllScopesOfClient(String clientId);
 
     /**
      * Returns added scopes id only.
