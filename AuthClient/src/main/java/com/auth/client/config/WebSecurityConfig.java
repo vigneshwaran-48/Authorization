@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -58,20 +59,27 @@ public class WebSecurityConfig {
 					try {
 						request
 							.requestMatchers("/static/**",
-			                    "/*.ico", "/*.json", "/*.png", "/ping")
+			                    "/*.ico", "/*.json", "/*.png", "/ping",
+									"/logout-success")
 							.permitAll()
 							.anyRequest()
 							.authenticated()
 							.and()
 							.oauth2Login()							
-							.permitAll();
+							.permitAll()
+								.and()
+								.logout()
+								.clearAuthentication(true)
+								.deleteCookies()
+								.invalidateHttpSession(true)
+								.logoutSuccessUrl("/logout-success");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 			   })				
 			.build();
 	}
-	
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
