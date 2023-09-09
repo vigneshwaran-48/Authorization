@@ -7,6 +7,7 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -47,6 +50,9 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -93,7 +99,11 @@ public class OAuthConfig {
 									.passwordParameter("password")
 									.permitAll()
 								.and()
-									.csrf().disable();
+									.csrf().disable()
+									.logout(l -> l
+											.invalidateHttpSession(true)
+											.deleteCookies()
+											.logoutSuccessUrl("/"));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -108,20 +118,6 @@ public class OAuthConfig {
 				.build();
 
 	}
-//
-//	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
-//		DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
-//
-//		return requset -> {
-//			OAuth2User oauth2User = delegate.loadUser(requset);
-//
-//			System.out.println("From custom oauth2 user ....");
-//			System.out.println(oauth2User);
-//
-//			return oauth2User;
-//		};
-//	}
-
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();

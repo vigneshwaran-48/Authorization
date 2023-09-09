@@ -58,6 +58,19 @@ public class ScopeServiceImpl implements ScopeService {
     }
 
     @Override
+    public List<Long> deleteAllScopesOfClient(String clientId) {
+        List<Scope> deletedScopes = scopeRepository.deleteByClientClientId(clientId);
+        List<Long> deletedScopeIds = new ArrayList<>();
+
+        if(deletedScopes == null) {
+            deletedScopes.forEach(scope -> {
+                deletedScopeIds.add(scope.getScopeId());
+            });
+        }
+        return deletedScopeIds;
+    }
+
+    @Override
     public List<Long> checkAndScopes(CommonClientDetails client, List<CommonScopeDetails> scopes) throws AppException {
         List<Long> addedScopes = new ArrayList<>();
         for (CommonScopeDetails scope : scopes) {

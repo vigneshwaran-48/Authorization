@@ -52,4 +52,16 @@ public class SingleClientControllerResponse {
 		this.client = client;
 		this.path = path;
 	}
+	public SingleClientControllerResponse() {}
+
+	@Override
+	public String toString() {
+		return "SingleClientControllerResponse{" +
+				"status=" + status +
+				", message='" + message + '\'' +
+				", timestamp=" + timestamp +
+				", path='" + path + '\'' +
+				", client=" + client +
+				'}';
+	}
 }
