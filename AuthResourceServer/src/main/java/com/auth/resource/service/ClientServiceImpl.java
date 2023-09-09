@@ -168,8 +168,9 @@ public class ClientServiceImpl implements ClientService {
 			throw new AppException("Client not exists", 400, AppExceptionType.BAD_REQUEST);
 		}
 		if(clientDetails.getClientName() != null) {
-			if(clientRepository
-					.findByUserIdAndClientName(userId, clientDetails.getClientName()).isPresent()) {
+			Client temp = clientRepository
+					.findByUserIdAndClientName(userId, clientDetails.getClientName()).get();
+			if(temp != null && !temp.getClientId().equals(clientDetails.getClientId())) {
 				throw new ClientExistsException("Client already existing with this name");
 			}
 		}
