@@ -146,6 +146,7 @@ public class WebSecurityConfig {
                 String referrer = request.getHeader("referer");
                 if (referrer == null) {
                     referrer = request.getRequestURL().toString();
+					System.out.println("Setting referrer as => " + referrer);
                 }
                 request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST",
                     new SimpleSavedRequest(referrer));
