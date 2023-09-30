@@ -3,7 +3,6 @@ package com.auth.library.controller;
 import java.security.Principal;
 import java.util.Map;
 
-import com.auth.library.exception.UnAuthenticatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
