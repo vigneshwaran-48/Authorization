@@ -18,7 +18,7 @@ import com.auth.library.exception.UserNotFoundException;
 import com.auth.library.model.CommonUserDetails;
 import com.auth.library.service.AppUserService;
 import com.auth.server.model.AppUser;
-import com.auth.server.model.UserPrincipal;
+import com.auth.server.model.AppUserPrincipal;
 import com.auth.server.repository.UserRepository;
 
 @Service
@@ -32,7 +32,6 @@ public class UserDetailsManagerService implements UserDetailsManager, AppUserSer
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		System.out.println("Loading user ..................");
 		AppUser appUser = userRepository.findByUserName(username);
 		
 		if(appUser == null) {
@@ -47,7 +46,7 @@ public class UserDetailsManagerService implements UserDetailsManager, AppUserSer
 		
 		String name = appUser.getUserId() != null ? appUser.getUserId().toString() : String.valueOf(-1);
 		
-		UserPrincipal user = new UserPrincipal();
+		AppUserPrincipal user = new AppUserPrincipal();
 		user.setUserName(name);
 		user.setAuthorities(authorities);
 		user.setPassword(appUser.getPassword());
@@ -73,7 +72,6 @@ public class UserDetailsManagerService implements UserDetailsManager, AppUserSer
 
 	@Override
 	public void changePassword(String oldPassword, String newPassword) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -88,15 +86,7 @@ public class UserDetailsManagerService implements UserDetailsManager, AppUserSer
 	}
 
 	private AppUser toAppUser(UserDetails user) {
-//		Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-//		
-//		Set<Authority> appAuthorities = authorities.stream().map(auth -> {
-//											String authStr = auth.getAuthority();
-//											return authorityRepository
-//													.findByAuthority(authStr);
-//									 	 })
-//										 .collect(Collectors.toSet());
-//		
+
 		AppUser appUser = new AppUser();
 		
 		appUser.setUserName(user.getUsername());
@@ -113,11 +103,6 @@ public class UserDetailsManagerService implements UserDetailsManager, AppUserSer
 			throw new UserExistsException("User name exists");
 		}
 		appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
-//		appUser.setAccountNonExpired(true);
-//		appUser.setAccountNonLocked(true);
-//		appUser.setEnabled(true);
-//		appUser.setAuthorities(Set.of(new Authority("1", "ADMIN")));
-//		appUser.setCredentialsNonExpired(true);
 		AppUser createdUser = userRepository.save(appUser);
 		
 		if(createdUser == null) {

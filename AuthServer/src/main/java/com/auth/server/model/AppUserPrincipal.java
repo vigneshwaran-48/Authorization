@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @JsonDeserialize
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserPrincipal implements UserDetails {
+public class AppUserPrincipal implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 
