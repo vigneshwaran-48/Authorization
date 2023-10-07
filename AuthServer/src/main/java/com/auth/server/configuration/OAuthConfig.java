@@ -7,31 +7,21 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.auth.server.repository.CustomOAuth2UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.jackson2.CoreJackson2Module;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
@@ -43,16 +33,11 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
-//import com.auth.server.repository.CustomOAuth2UserService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -97,6 +82,7 @@ public class OAuthConfig {
 									.loginProcessingUrl("/authenticate")
 									.usernameParameter("name")
 									.passwordParameter("password")
+									.defaultSuccessUrl("http://127.0.0.1:9292")
 									.permitAll()
 								.and()
 									.csrf().disable()
@@ -142,24 +128,6 @@ public class OAuthConfig {
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings() {
 		return AuthorizationServerSettings.builder().build();
-	}
-
-	@Bean
-	OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
-		return context -> {
-			Authentication principal = context.getPrincipal();
-			if (context.getTokenType().getValue().equals("id_token")) {
-				context.getClaims().claim("Test", "Test Id Token");
-			}
-			if (context.getTokenType().getValue().equals("access_token")) {
-				context.getClaims().claim("Test", "Test Access Token");
-				Set<String> authorities = principal.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
-                context.getClaims().claim("authorities", authorities)
-                        .claim("user", principal.getName());
-			}
-
-		};
 	}
 
 	@Bean

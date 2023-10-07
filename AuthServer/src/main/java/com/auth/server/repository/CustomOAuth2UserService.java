@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.auth.library.exception.UserExistsException;
 import com.auth.library.exception.UserNotFoundException;
-import com.auth.library.model.CommonUserDetails;
 import com.auth.server.model.AppUser;
-import com.auth.server.model.AuthProvider;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -57,7 +55,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			try {
 				Thread.sleep(4000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			userRepository.save(appUser);

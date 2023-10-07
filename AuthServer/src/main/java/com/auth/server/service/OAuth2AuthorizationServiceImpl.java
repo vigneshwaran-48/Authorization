@@ -14,8 +14,6 @@ import com.auth.server.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -275,7 +273,6 @@ public class OAuth2AuthorizationServiceImpl implements OAuth2AuthorizationServic
 		try {
 			Map<String, Object> map = objectMapper.readValue(data, new TypeReference<Map<String, Object>>() {
 			});
-			System.out.println("While parsing => " + map);
 			return map;
 		} catch (JsonProcessingException e) {
 			throw new IllegalArgumentException(e.getMessage(), e);
@@ -283,7 +280,6 @@ public class OAuth2AuthorizationServiceImpl implements OAuth2AuthorizationServic
 	}
 	
 	private String writeMap(Map<String, Object> map) {
-		System.out.println("While writing => " + map);
 		try {
 			return objectMapper.writeValueAsString(map);
 		} catch (JsonProcessingException e) {
