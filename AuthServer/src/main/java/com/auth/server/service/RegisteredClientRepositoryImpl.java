@@ -55,9 +55,7 @@ public class RegisteredClientRepositoryImpl implements RegisteredClientRepositor
 
 	@Override
 	public RegisteredClient findByClientId(String clientId) {
-		System.out.println("Searching client ......................... for client id => " + clientId);
 		RegisteredClient client = clientRepository.findByClientId(clientId).map(this::toRegisteredClient).orElse(null);
-		System.out.println("Founded client => " + client);
 		return client;
 	}
 
@@ -73,10 +71,13 @@ public class RegisteredClientRepositoryImpl implements RegisteredClientRepositor
 								.add(resolveClientAuthenticationMethod(authenticationMethod))))
 				.authorizationGrantTypes((grantTypes) -> authGrantTypes
 						.forEach(grantType -> grantTypes.add(resolveAuthorizationGrantType(grantType))))
-				.clientId(client.getClientId()).clientIdIssuedAt(client.getClientIdIssuedAt())
-				.clientName(client.getClientName()).clientSecret(client.getClientSecret())
+				.clientId(client.getClientId())
+				.clientIdIssuedAt(client.getClientIdIssuedAt())
+				.clientName(client.getClientName())
+				.clientSecret(client.getClientSecret())
 				.clientSecretExpiresAt(client.getClientSecretExpiresAt())
-				.redirectUris(uri -> redirectUris.forEach(uri::add)).scopes(scope -> clientScopes.forEach(scope::add));
+				.redirectUris(uri -> redirectUris.forEach(uri::add))
+				.scopes(scope -> clientScopes.forEach(scope::add));
 
 		Map<String, Object> clientSettingsMap = parseMap(client.getClientSettings());
 		builder.clientSettings(ClientSettings.withSettings(clientSettingsMap).build());

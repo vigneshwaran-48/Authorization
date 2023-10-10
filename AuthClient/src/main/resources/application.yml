@@ -12,6 +12,7 @@ resource:
  
 app:
   baseurl: http://127.0.0.1:9292
+  isresource-server: false
      
 spring:
   security:
@@ -22,6 +23,9 @@ spring:
             client-id: proapp_auth_server_client
             client-secret: proapp_auth@123
             scope: "openid,APP.all"
+            # client-id: proapp-0c14a797-9a10-4bd0-8e9a-5c4c72cf7c41
+            # client-secret: "task@123"
+            # scope: "openid,TaskManager.ALL"
         provider:
           auth-server-client:
             issuer-uri: "http://localhost:9090"

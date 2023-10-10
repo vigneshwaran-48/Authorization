@@ -82,7 +82,6 @@ public class OAuthConfig {
 									.loginProcessingUrl("/authenticate")
 									.usernameParameter("name")
 									.passwordParameter("password")
-									.defaultSuccessUrl("http://127.0.0.1:9292")
 									.permitAll()
 								.and()
 									.csrf().disable()
