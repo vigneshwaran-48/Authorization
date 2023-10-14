@@ -32,8 +32,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.vigneshwaran</groupId>
-			<artifactId>Library</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>Authorization</artifactId>
+			<version>1.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>

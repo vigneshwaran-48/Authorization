@@ -4,27 +4,23 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.auth.library.dto.*;
 import com.auth.library.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.web.bind.annotation.*;
 
 import com.auth.library.exception.UnAuthenticatedException;
 import com.auth.library.model.CommonClientDetails;
 import com.auth.library.service.ClientService;
-import com.auth.library.utils.AuthServerUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -36,6 +32,9 @@ public class ClientController {
 	@Autowired
 	private ClientService clientService;
 	
+	@Value("${app.isresource-server}")
+	private String isResourceServer;
+
 	private ClientAuthenticationMethod getClientAuth() {
 		return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 	}
@@ -51,9 +50,13 @@ public class ClientController {
 		List<String> redirectUris = Arrays.asList(payload.getRedirectUris().split(","));
 		List<String> scopes = Arrays.asList(payload.getScopes().split(","));
 				
+		String secret = payload.getClientSecret();
+		if(isResourceServer != null && Boolean.parseBoolean(isResourceServer)) {
+			secret = passwordEncoder.encode(secret);
+		}
 		RegisteredClient.Builder client =
 				RegisteredClient.withId(UUID.randomUUID().toString())
-					.clientSecret(passwordEncoder.encode(payload.getClientSecret()))
+					.clientSecret(secret)
 					.clientAuthenticationMethod(getClientAuth())
 					.clientName(payload.getClientName())
 					.scopes(scope -> scopes.forEach(scope::add))
