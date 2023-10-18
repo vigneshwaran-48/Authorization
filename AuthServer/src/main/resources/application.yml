@@ -1,5 +1,9 @@
 server:
   port: 9090
+  servlet:
+    session:
+      timeout: 300m
+
 
 authserver:
   baseurl: "http://localhost:9090"     
