@@ -34,6 +34,7 @@ import com.auth.library.service.UserProfileImageService;
 
 @RestController
 @RequestMapping(path = "/api/user")
+@CrossOrigin("*")
 public class UserController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
@@ -50,8 +51,6 @@ public class UserController {
 	private String appbaseUrl;
 		
 	@PostMapping
-	@CrossOrigin(origins = {"http://localhost:9090", "http://localhost:3000"},
-	allowCredentials = "true")
 	public ResponseEntity<UserControllerResponse> createUser(
 			@RequestBody CommonUserDetails requestUser) {
 		try {
