@@ -5,13 +5,13 @@ authserver-client:
   baseurl: "http://localhost:3000"  
   
 authserver:
-  baseurl: http://192.168.91.128:9090
+  baseurl: http://localhost:9090
 resource:
   server:
-    baseurl: http://127.0.0.1:9393
+    baseurl: http://localhost:9393
  
 app:
-  baseurl: http://127.0.0.1:9292
+  baseurl: http://localhost:9292
   isresource-server: false
      
 spring:
