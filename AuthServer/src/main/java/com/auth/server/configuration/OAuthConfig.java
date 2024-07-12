@@ -7,8 +7,11 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.auth.server.filter.PreAuthFilter;
 import com.auth.server.repository.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +20,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -25,8 +30,12 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -60,6 +69,7 @@ public class OAuthConfig {
 	@Order(2)
 	SecurityFilterChain appSecurityFilterChain(HttpSecurity http) throws Exception {
 		return http
+				.addFilterBefore(new PreAuthFilter(), AbstractPreAuthenticatedProcessingFilter.class)
 				.authorizeHttpRequests(authorize ->
 					{
 						try {
@@ -76,6 +86,20 @@ public class OAuthConfig {
 									.loginProcessingUrl("/authenticate")
 									.usernameParameter("name")
 									.passwordParameter("password")
+									// .successHandler((req, resp, auth) -> {
+									// 	System.out.println(req.getHeader("Referer"));
+									// 	System.out.println(req.getHeaderNames());
+									// 	System.out.println(auth.getDetails());
+									// 	System.out.println(auth.isAuthenticated());
+									// 	System.out.println(auth.getPrincipal());
+									// 	for(int i = 0; i < 10; i ++) {
+									// 		System.out.println("Test");
+									// 	}
+
+									// 	System.out.println(auth.getCredentials());
+
+									// 	resp.sendRedirect("https://google.com");
+									// })
 									.permitAll()
 								.and()
 									.csrf().disable()
@@ -153,5 +177,23 @@ public class OAuthConfig {
 			throw new IllegalStateException(ex);
 		}
 		return keyPair;
+	}
+
+	@Bean
+	OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
+		return context -> {
+			Authentication principal = context.getPrincipal();
+			if (context.getTokenType().getValue().equals("id_token")) {
+				context.getClaims().claim("Test", "Test Id Token");
+			}
+			if (context.getTokenType().getValue().equals("access_token")) {
+				context.getClaims().claim("Test", "Test Access Token");
+				Set<String> authorities = principal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+                context.getClaims().claim("authorities", authorities)
+                        .claim("user", principal.getName());
+			}
+
+		};
 	}
 }

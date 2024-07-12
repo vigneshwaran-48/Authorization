@@ -8,6 +8,8 @@ import com.auth.server.model.AuthorizationConsent;
 
 public interface AuthorizationConsentRepository extends JpaRepository<AuthorizationConsent, String> {
 
-	Optional<AuthorizationConsent> findByRegisteredClientIdAndPrincipalName(String registeredClientId, String principalName);
+	Optional<AuthorizationConsent> findByRegisteredClientIdAndPrincipalName(String registeredClientId,
+			String principalName);
+
 	void deleteByRegisteredClientIdAndPrincipalName(String registeredClientId, String principalName);
 }
